@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>VRツアーマップ</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html { width: 100%; height: 100%; min-height: -webkit-fill-available; overflow: hidden; background: #222; }
+.map-container { width: 100vw; height: 100vh; height: 100dvh; display: flex; justify-content: center; align-items: center; background: #222; overflow: hidden; }
+.map-stage { position: relative; display: block; max-width: 100vw; max-height: 100vh; max-height: 100dvh; line-height: 0; overflow: visible; }
+.map-image { display: block; max-width: 100vw; max-height: 100vh; max-height: 100dvh; width: auto; height: auto; }
+.overlay-text { position: absolute; z-index: 5; pointer-events: none; }
+.main-title { font-size: 51px; color: #ffff80; font-weight: bold; font-family: 'Yu Mincho','YuMincho','Hiragino Mincho ProN','MS PMincho',serif; text-shadow: 0 0 10px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.76), 0 0 30px rgba(0,0,0,0.57), 0 0 40px rgba(0,0,0,0.38); line-height: 1.25; margin-bottom: 10px; text-align: left; }
+.desc-text { font-size: 18px; color: #ffffff; font-family: 'Yu Mincho','YuMincho','Hiragino Mincho ProN','MS PMincho',serif; text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7200000000000001), 0 0 30px rgba(0,0,0,0.54), 0 0 40px rgba(0,0,0,0.36000000000000004); white-space: pre-wrap; line-height: 1.7; text-align: left; }
+.map-entry-pin { position: absolute; transform: translate(-50%, -50%); z-index: 15; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.map-entry-pin:hover .map-entry-dot { transform: scale(1.1); }
+.map-entry-dot { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.55); font-family: sans-serif; line-height: 1.05; text-align: center; transition: transform 0.15s; }
+.map-entry-label { margin-top: 3px; background: rgba(255,255,255,0.92); color: #333; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; white-space: nowrap; font-family: sans-serif; pointer-events: none; }
+.help-button { position: fixed; right: 14px; top: 14px; z-index: 50; background: rgba(255,226,106,0.94); color: #111; font-weight: bold; font-size: 15px; text-decoration: none; padding: 9px 14px; border-radius: 999px; box-shadow: 0 3px 12px rgba(0,0,0,0.45); font-family: sans-serif; }
+</style>
+</head>
+<body>
+<a class="help-button" href="help/使い方.html">？使い方</a>
+<div class="map-container">
+  <div class="map-stage" id="mapStage">
+  <img src="map.jpg" alt="地図" class="map-image">
+  <div class="overlay-text main-title" style="width:min(92%,900px);padding:8px;left:2%;top:3%;">ななせダム 撮影個所</div>
+  </div>
+</div>
+<script>
+var MAP_BOUNDS = { topLeft: { lat: 33.135819, lng: 131.468296 }, bottomRight: { lat: 33.11073, lng: 131.518719 } };
+var MAP_LINEAR = false;
+var MAP_INSETS = { left: 0, top: 0, right: 0, bottom: 0 };
+var MAP_PIN_OFFSET = { x: 0, y: 0 };
+var MAP_TWO_POINT = null;
+function mercatorY(lat) { var r = lat * Math.PI / 180; return Math.log(Math.tan(Math.PI / 4 + r / 2)); }
+function gpsToPercent(lat, lng) {
+  var x, y, bounds = MAP_BOUNDS, tp = MAP_TWO_POINT;
+  if (tp && tp.p1 && tp.p2) {
+    var p1 = tp.p1, p2 = tp.p2;
+    x = Math.abs(p2.lng - p1.lng) > 1e-12 ? p1.x + (lng - p1.lng) / (p2.lng - p1.lng) * (p2.x - p1.x) : p1.x;
+    var y1 = mercatorY(p1.lat), y2 = mercatorY(p2.lat), ym = mercatorY(lat);
+    if (Math.abs(y2 - y1) > 1e-12) { var s1 = p1.y / 100, s2 = p2.y / 100, sm = (ym - y1) / (y2 - y1); y = (s1 + sm * (s2 - s1)) * 100; } else { y = p1.y; }
+  } else if (MAP_LINEAR) {
+    var lngSpan = bounds.bottomRight.lng - bounds.topLeft.lng;
+    var latSpan = bounds.topLeft.lat - bounds.bottomRight.lat;
+    x = lngSpan ? (lng - bounds.topLeft.lng) / lngSpan * 100 : 0;
+    y = latSpan ? (bounds.topLeft.lat - lat) / latSpan * 100 : 0;
+  } else {
+    var lngSpan = bounds.bottomRight.lng - bounds.topLeft.lng;
+    var yTop = mercatorY(bounds.topLeft.lat), yBot = mercatorY(bounds.bottomRight.lat);
+    x = lngSpan ? (lng - bounds.topLeft.lng) / lngSpan * 100 : 0;
+    y = (yTop - yBot) ? (yTop - mercatorY(lat)) / (yTop - yBot) * 100 : 0;
+  }
+  var il = MAP_INSETS.left || 0, it = MAP_INSETS.top || 0, ir = MAP_INSETS.right || 0, ib = MAP_INSETS.bottom || 0;
+  x = il + x * (100 - il - ir) / 100;
+  y = it + y * (100 - it - ib) / 100;
+  x += (MAP_PIN_OFFSET.x || 0); y += (MAP_PIN_OFFSET.y || 0);
+  return { x: x, y: y };
+}
+var VIEWER_BUILD = '2026-07-09-ios1';
+var PINS = [
+
+  // Pin #1: aa001 (aa - sceneId: 0-aa001)
+  { lat: 33.13173917, lng: 131.49931917, name: 'aa001', sceneId: '0-aa001', color: '#e8453c', rowNum: 1 },
+
+  // Pin #2: aa002 (aa - sceneId: 1-aa002)
+  { lat: 33.12420583, lng: 131.49560028, name: 'aa002', sceneId: '1-aa002', color: '#e8453c', rowNum: 2 },
+
+  // Pin #3: aa003 (aa - sceneId: 2-aa003)
+  { lat: 33.12485778, lng: 131.49566944, name: 'aa003', sceneId: '2-aa003', color: '#e8453c', rowNum: 3 },
+
+  // Pin #4: aa004 (aa - sceneId: 3-aa004)
+  { lat: 33.11964167, lng: 131.49584222, name: 'aa004', sceneId: '3-aa004', color: '#e8453c', rowNum: 4 },
+
+  // Pin #5: aa005 (aa - sceneId: 4-aa005)
+  { lat: 33.11948972, lng: 131.4946375, name: 'aa005', sceneId: '4-aa005', color: '#e8453c', rowNum: 5 },
+
+  // Pin #6: aa006 (aa - sceneId: 5-aa006)
+  { lat: 33.12327744, lng: 131.49189606, name: 'aa006', sceneId: '5-aa006', color: '#e8453c', rowNum: 6 },
+
+  // Pin #7: aa007 (aa - sceneId: 6-aa007)
+  { lat: 33.12540139, lng: 131.49111139, name: 'aa007', sceneId: '6-aa007', color: '#e8453c', rowNum: 7 },
+
+  // Pin #8: aa008 (aa - sceneId: 7-aa008)
+  { lat: 33.11727806, lng: 131.48553806, name: 'aa008', sceneId: '7-aa008', color: '#e8453c', rowNum: 8 },
+
+  // Pin #9: aa009 (aa - sceneId: 8-aa009)
+  { lat: 33.11903306, lng: 131.47871056, name: 'aa009', sceneId: '8-aa009', color: '#e8453c', rowNum: 9 },
+
+  // Pin #10: aa010 (aa - sceneId: 9-aa010)
+  { lat: 33.115445, lng: 131.47548972, name: 'aa010', sceneId: '9-aa010', color: '#e8453c', rowNum: 10 }
+];
+
+var SIDE_BRANCHES = [];
+
+function spreadPinPositions(pins) {
+  var positions = pins.map(function(pin) { return { pin: pin, pos: gpsToPercent(pin.lat, pin.lng) }; });
+  var groups = {};
+  positions.forEach(function(item, i) {
+    var k = item.pin.lat.toFixed(6) + ',' + item.pin.lng.toFixed(6);
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(i);
+  });
+  Object.keys(groups).forEach(function(k) {
+    var idxs = groups[k];
+    if (idxs.length <= 1) return;
+    var r = 1.8;
+    idxs.forEach(function(pi, j) {
+      var a = (2 * Math.PI * j) / idxs.length - Math.PI / 2;
+      positions[pi].pos.x += Math.cos(a) * r;
+      positions[pi].pos.y += Math.sin(a) * r;
+    });
+  });
+  positions.forEach(function(item) {
+    item.pos.x += parseFloat(item.pin.mapOffsetX || 0) || 0;
+    item.pos.y += parseFloat(item.pin.mapOffsetY || 0) || 0;
+  });
+  return positions;
+}
+
+function goToScene(pin) {
+  var url = './viewer.html?id=' + pin.sceneId;
+  if (pin.flip) url += '&flip=1';
+  if (SIDE_BRANCHES.length > 0) {
+    url += '&sideBranches=' + encodeURIComponent(JSON.stringify(SIDE_BRANCHES));
+  }
+  url += '&back=./map.html&v=' + encodeURIComponent(VIEWER_BUILD);
+  window.location.href = url;
+}
+
+var container = document.getElementById('mapStage');
+function getMapEntryIndexes(total) {
+  var allIdx = [];
+  for (var gi = 0; gi < total; gi++) allIdx.push(gi);
+  return allIdx;
+}
+function renderMapEntry() {
+  if (!PINS.length) return;
+  var spread = spreadPinPositions(PINS);
+  var idxs = getMapEntryIndexes(PINS.length);
+  var labels = {};
+  labels[0] = 'スタート';
+  if (PINS.length >= 3) {
+    labels[Math.floor((PINS.length - 1) / 2)] = '途中';
+    labels[PINS.length - 1] = 'ゴール';
+  } else if (PINS.length === 2) {
+    labels[1] = 'ゴール';
+  }
+  idxs.forEach(function(i) {
+    var item = spread[i];
+    if (!item || !isFinite(item.pin.lat) || !isFinite(item.pin.lng)) return;
+    var el = document.createElement('div');
+    el.className = 'map-entry-pin';
+    el.style.left = item.pos.x + '%';
+    el.style.top = item.pos.y + '%';
+    var short = String((item.pin.rowNum != null ? item.pin.rowNum : (i + 1)));
+    var name = item.pin.name || ('' + (i + 1));
+    el.innerHTML = '<div class="map-entry-dot" style="background:' + item.pin.color + ';">' + short + '</div><div class="map-entry-label">' + name + '</div>';
+    el.addEventListener('click', function() { goToScene(PINS[i]); });
+    container.appendChild(el);
+  });
+}
+renderMapEntry();
+</script>
+</body>
+</html>
