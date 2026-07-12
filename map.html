@@ -14,9 +14,14 @@ body, html { width: 100%; height: 100%; min-height: -webkit-fill-available; over
 .main-title { font-size: 51px; color: #ffff80; font-weight: bold; font-family: 'Yu Mincho','YuMincho','Hiragino Mincho ProN','MS PMincho',serif; text-shadow: 0 0 10px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.76), 0 0 30px rgba(0,0,0,0.57), 0 0 40px rgba(0,0,0,0.38); line-height: 1.25; margin-bottom: 10px; text-align: left; }
 .desc-text { font-size: 18px; color: #ffffff; font-family: 'Yu Mincho','YuMincho','Hiragino Mincho ProN','MS PMincho',serif; text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7200000000000001), 0 0 30px rgba(0,0,0,0.54), 0 0 40px rgba(0,0,0,0.36000000000000004); white-space: pre-wrap; line-height: 1.7; text-align: left; }
 .map-entry-pin { position: absolute; transform: translate(-50%, -50%); z-index: 15; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.map-entry-pin:hover { z-index: 40; }
 .map-entry-pin:hover .map-entry-dot { transform: scale(1.1); }
-.map-entry-dot { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.55); font-family: sans-serif; line-height: 1.05; text-align: center; transition: transform 0.15s; }
-.map-entry-label { margin-top: 3px; background: rgba(255,255,255,0.92); color: #333; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; white-space: nowrap; font-family: sans-serif; pointer-events: none; }
+.map-entry-dot { width: 30px; height: 30px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.55); font-family: sans-serif; line-height: 1.05; text-align: center; transition: transform 0.15s; }
+.map-entry-label { margin-top: 3px; background: transparent; color: #ffff80; font-size: 11px; font-weight: bold; padding: 0; border-radius: 0; white-space: normal; word-break: keep-all; overflow-wrap: break-word; max-width: 9em; line-height: 1.3; text-align: center; font-family: sans-serif; pointer-events: none; writing-mode: horizontal-tb; text-shadow: 0 0 3px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1), -1px -1px 2px rgba(0,0,0,1), 1px -1px 2px rgba(0,0,0,1), -1px 1px 2px rgba(0,0,0,1); }
+.map-entry-label.is-bottom { transform: none; }
+.map-entry-label.is-right { transform: translate(calc(50% + 20px), -26px); white-space: nowrap; max-width: none; text-align: left; }
+.map-entry-label.is-left { transform: translate(calc(-50% - 20px), -26px); white-space: nowrap; max-width: none; text-align: right; }
+.map-entry-label.is-top { transform: translate(0, -48px); }
 .help-button { position: fixed; right: 14px; top: 14px; z-index: 50; background: rgba(255,226,106,0.94); color: #111; font-weight: bold; font-size: 15px; text-decoration: none; padding: 9px 14px; border-radius: 999px; box-shadow: 0 3px 12px rgba(0,0,0,0.45); font-family: sans-serif; }
 </style>
 </head>
@@ -62,35 +67,38 @@ function gpsToPercent(lat, lng) {
 var VIEWER_BUILD = '2026-07-09-ios1';
 var PINS = [
 
-  // Pin #1: aa001 (aa - sceneId: 0-aa001)
-  { lat: 33.13173917, lng: 131.49931917, name: 'aa001', sceneId: '0-aa001', color: '#e8453c', rowNum: 1 },
+  // Pin #1: ダム下流 (aa - sceneId: 0-aa001)
+  { lat: 33.13173917, lng: 131.49931917, name: 'ダム下流', sceneId: '0-aa001', color: '#e8453c', rowNum: 1 },
 
-  // Pin #2: aa002 (aa - sceneId: 1-aa002)
-  { lat: 33.12420583, lng: 131.49560028, name: 'aa002', sceneId: '1-aa002', color: '#e8453c', rowNum: 2 },
+  // Pin #2: ダム上流 (aa - sceneId: 1-aa002)
+  { lat: 33.12420583, lng: 131.49560028, name: 'ダム上流', sceneId: '1-aa002', color: '#e8453c', rowNum: 2 },
 
-  // Pin #3: aa003 (aa - sceneId: 2-aa003)
-  { lat: 33.12485778, lng: 131.49566944, name: 'aa003', sceneId: '2-aa003', color: '#e8453c', rowNum: 3 },
+  // Pin #3: 付け替え林道下流 (aa - sceneId: 2-aa003)
+  { lat: 33.12485778, lng: 131.49566944, name: '付け替え林道下流', sceneId: '2-aa003', color: '#e8453c', rowNum: 3, labelSide: 'right' },
 
-  // Pin #4: aa004 (aa - sceneId: 3-aa004)
-  { lat: 33.11964167, lng: 131.49584222, name: 'aa004', sceneId: '3-aa004', color: '#e8453c', rowNum: 4 },
+  // Pin #4: 付け替え林道上流 (aa - sceneId: 3-aa004)
+  { lat: 33.11964167, lng: 131.49584222, name: '付け替え林道上流', sceneId: '3-aa004', color: '#e8453c', rowNum: 4, labelSide: 'right' },
 
-  // Pin #5: aa005 (aa - sceneId: 4-aa005)
-  { lat: 33.11948972, lng: 131.4946375, name: 'aa005', sceneId: '4-aa005', color: '#e8453c', rowNum: 5 },
+  // Pin #5: 原石山跡 (aa - sceneId: 4-aa005)
+  { lat: 33.11948972, lng: 131.4946375, name: '原石山跡', sceneId: '4-aa005', color: '#e8453c', rowNum: 5 },
 
-  // Pin #6: aa006 (aa - sceneId: 5-aa006)
-  { lat: 33.12327744, lng: 131.49189606, name: 'aa006', sceneId: '5-aa006', color: '#e8453c', rowNum: 6 },
+  // Pin #6: 護岸周辺のアラカシ林 (aa - sceneId: 5-aa006)
+  { lat: 33.12327744, lng: 131.49189606, name: '護岸周辺のアラカシ林', sceneId: '5-aa006', color: '#e8453c', rowNum: 6 },
 
-  // Pin #7: aa007 (aa - sceneId: 6-aa007)
-  { lat: 33.12540139, lng: 131.49111139, name: 'aa007', sceneId: '6-aa007', color: '#e8453c', rowNum: 7 },
+  // Pin #7: 論田地区 (aa - sceneId: 6-aa007)
+  { lat: 33.12540139, lng: 131.49111139, name: '論田地区', sceneId: '6-aa007', color: '#e8453c', rowNum: 7, labelSide: 'left' },
 
-  // Pin #8: aa008 (aa - sceneId: 7-aa008)
-  { lat: 33.11727806, lng: 131.48553806, name: 'aa008', sceneId: '7-aa008', color: '#e8453c', rowNum: 8 },
+  // Pin #8: 材料山 (aa - sceneId: 7-aa008)
+  { lat: 33.11727806, lng: 131.48553806, name: '材料山', sceneId: '7-aa008', color: '#e8453c', rowNum: 8 },
 
-  // Pin #9: aa009 (aa - sceneId: 8-aa009)
-  { lat: 33.11903306, lng: 131.47871056, name: 'aa009', sceneId: '8-aa009', color: '#e8453c', rowNum: 9 },
+  // Pin #9: 常時満水 (aa - sceneId: 8-aa009)
+  { lat: 33.11903306, lng: 131.47871056, name: '常時満水', sceneId: '8-aa009', color: '#e8453c', rowNum: 9 },
 
-  // Pin #10: aa010 (aa - sceneId: 9-aa010)
-  { lat: 33.115445, lng: 131.47548972, name: 'aa010', sceneId: '9-aa010', color: '#e8453c', rowNum: 10 }
+  // Pin #10: サーチャージ水位 (aa - sceneId: 9-aa010)
+  { lat: 33.115445, lng: 131.47548972, name: 'サーチャージ水位', sceneId: '9-aa010', color: '#e8453c', rowNum: 10 },
+
+  // Pin #11: ポイント (aa - sceneId: 10-aa011)
+  { lat: 33.113773, lng: 131.495708, name: 'ポイント', sceneId: '10-aa011', color: '#e8453c', rowNum: 11 }
 ];
 
 var SIDE_BRANCHES = [];
@@ -157,7 +165,9 @@ function renderMapEntry() {
     el.style.top = item.pos.y + '%';
     var short = String((item.pin.rowNum != null ? item.pin.rowNum : (i + 1)));
     var name = item.pin.name || ('' + (i + 1));
-    el.innerHTML = '<div class="map-entry-dot" style="background:' + item.pin.color + ';">' + short + '</div><div class="map-entry-label">' + name + '</div>';
+    var side = item.pin.labelSide || 'bottom';
+    if (side !== 'left' && side !== 'right' && side !== 'top' && side !== 'bottom') side = 'bottom';
+    el.innerHTML = '<div class="map-entry-dot" style="background:' + item.pin.color + ';">' + short + '</div><div class="map-entry-label is-' + side + '">' + name + '</div>';
     el.addEventListener('click', function() { goToScene(PINS[i]); });
     container.appendChild(el);
   });
