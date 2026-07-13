@@ -18,7 +18,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -61,7 +61,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -104,7 +104,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -147,7 +147,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -190,7 +190,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -272,7 +272,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -315,7 +315,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -358,7 +358,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
@@ -401,7 +401,7 @@ var APP_DATA = {
           "size": 1024
         },
         {
-          "tileSize": 1024,
+          "tileSize": 2048,
           "size": 2048
         }
       ],
