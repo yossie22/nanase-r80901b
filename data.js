@@ -16,9 +16,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -54,9 +59,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -92,9 +102,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -130,9 +145,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -168,9 +188,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -209,6 +234,7 @@ var APP_DATA = {
         }
       ],
       "faceSize": 2048,
+      "tilesBase": "tiles1024",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -244,9 +270,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -282,9 +313,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -320,9 +356,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -358,9 +399,14 @@ var APP_DATA = {
         {
           "tileSize": 1024,
           "size": 1024
+        },
+        {
+          "tileSize": 1024,
+          "size": 2048
         }
       ],
-      "faceSize": 2048,
+      "faceSize": 3750,
+      "tilesBase": "tiles2048",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
@@ -399,6 +445,7 @@ var APP_DATA = {
         }
       ],
       "faceSize": 2048,
+      "tilesBase": "tiles1024",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
