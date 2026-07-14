@@ -1763,12 +1763,17 @@ function sceneTilesBase(sd) {
 }
 function sceneMaxTileSize(sd) {
   var base = sceneTilesBase(sd);
-  if (base === 'tiles4096' || (sd && sd.maxTileSize === 4096)) return 4096;
-  if (base === 'tiles2048' || (sd && sd.maxTileSize === 2048)) return 2048;
-  if (base === 'tiles1024') return 1024;
-  if (sceneDeclaredMaxLevel(sd) >= 4096) return 4096;
-  if (sceneDeclaredMaxLevel(sd) >= 2048) return 2048;
-  return 1024;
+  var max = 1024;
+  if (base === 'tiles4096' || (sd && sd.maxTileSize === 4096)) max = 4096;
+  else if (base === 'tiles2048' || (sd && sd.maxTileSize === 2048)) max = 2048;
+  else if (base === 'tiles1024') max = 1024;
+  else if (sceneDeclaredMaxLevel(sd) >= 4096) max = 4096;
+  else if (sceneDeclaredMaxLevel(sd) >= 2048) max = 2048;
+  // iPad/iPhone: 4096一面が重く真っ黒になりやすい → 2048までに抑える
+  if (max >= 4096 && typeof isAppleMobileOrTablet === 'function' && isAppleMobileOrTablet()) {
+    return 2048;
+  }
+  return max;
 }
 var LEGACY_DEFAULT_FOV_RAD = 1.1479251634083179;
 
@@ -1838,7 +1843,7 @@ data.scenes.forEach(function(scene) {
 });
 
 // ビルド識別（どのファイルが実行されているか確認用）
-var BUILD_STAMP = '2026-07-09-ios10';
+var BUILD_STAMP = '2026-07-15-ios-cap2048';
 var guideVideoPreloadBySrc = {};
 var guideVideoSessionDone = {};
 console.log('🧩 viewer build:', BUILD_STAMP);
