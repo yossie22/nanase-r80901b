@@ -1677,6 +1677,27 @@ function startViewer() {
 'use strict';
 var Marzipano = window.Marzipano;
 var data = window.APP_DATA;
+
+function isAppleMobileDeviceEarly() {
+  var ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/i.test(ua)) return true;
+  if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+  return false;
+}
+
+// iPad/iPhone: 4096は使わず、既存の tiles2048 を見る（真っ黒防止）
+if (isAppleMobileDeviceEarly() && data && data.scenes) {
+  data.scenes.forEach(function(s) {
+    if (s && s.tilesBase === 'tiles4096') {
+      s.tilesBase = 'tiles2048';
+      if (s.levels) {
+        s.levels = s.levels.filter(function(l) { return (l.size || 0) <= 2048; });
+      }
+      console.log('📱 iPad/iPhone: ' + s.id + ' → tiles2048（4096はPC用）');
+    }
+  });
+}
+
 resolveTourTilesDefaults(data);
 filterSideBranchEntries();
 
@@ -1843,7 +1864,7 @@ data.scenes.forEach(function(scene) {
 });
 
 // ビルド識別（どのファイルが実行されているか確認用）
-var BUILD_STAMP = '2026-07-15-ios-cap2048';
+var BUILD_STAMP = '2026-07-15-ios-tiles2048';
 var guideVideoPreloadBySrc = {};
 var guideVideoSessionDone = {};
 console.log('🧩 viewer build:', BUILD_STAMP);
