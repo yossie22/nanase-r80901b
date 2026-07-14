@@ -1652,7 +1652,7 @@ function sceneDeclaredMaxLevel(sd) {
   return sd.levels.reduce(function(m, l) { return Math.max(m, l.size || 0); }, 0);
 }
 
-/** 全シーン2048なら tiles1024 を見ない。混在作品はシーンごとの tilesBase を使う */
+/** 混在作品はシーンごとの tilesBase を使う */
 function resolveTourTilesDefaults(appData) {
   var scenes = (appData && appData.scenes) || [];
   if (!scenes.length) return;
@@ -1662,19 +1662,12 @@ function resolveTourTilesDefaults(appData) {
   function effectiveBase(s) {
     if (s.tilesBase) return s.tilesBase;
     if (tourBase) return tourBase;
-    return sceneDeclaredMaxLevel(s) >= 2048 ? 'tiles2048' : (window.TILES_BASE || 'tiles1024');
+    var maxLv = sceneDeclaredMaxLevel(s);
+    if (maxLv >= 4096) return 'tiles4096';
+    if (maxLv >= 2048) return 'tiles2048';
+    return (window.TILES_BASE || 'tiles1024');
   }
 
-  var bases = scenes.map(effectiveBase);
-  var all2048 = bases.every(function(b) { return b === 'tiles2048'; });
-  if (all2048) {
-    window.TILES_BASE = 'tiles2048';
-    scenes.forEach(function(s) {
-      if (!s.tilesBase) s.tilesBase = 'tiles2048';
-    });
-    console.log('✅ 全シーン2048 → tiles2048 のみ使用（tiles1024 は参照しません）');
-    return;
-  }
   scenes.forEach(function(s) {
     if (!s.tilesBase) s.tilesBase = effectiveBase(s);
   });
@@ -1770,8 +1763,10 @@ function sceneTilesBase(sd) {
 }
 function sceneMaxTileSize(sd) {
   var base = sceneTilesBase(sd);
+  if (base === 'tiles4096' || (sd && sd.maxTileSize === 4096)) return 4096;
   if (base === 'tiles2048' || (sd && sd.maxTileSize === 2048)) return 2048;
   if (base === 'tiles1024') return 1024;
+  if (sceneDeclaredMaxLevel(sd) >= 4096) return 4096;
   if (sceneDeclaredMaxLevel(sd) >= 2048) return 2048;
   return 1024;
 }
@@ -1802,6 +1797,13 @@ function tiles1024ZoomBoost() {
 function sceneViewLimiter(sd) {
   var face = sd.faceSize || 2048;
   var maxTile = sceneMaxTileSize(sd);
+  if (maxTile >= 4096) {
+    return Marzipano.RectilinearView.limit.traditional(
+      face * 3,
+      75 * Math.PI / 180,
+      110 * Math.PI / 180
+    );
+  }
   if (maxTile >= 2048) {
     // 2048タイル: resolution制限を緩めてピンチ拡大を約2〜3倍可能に
     return Marzipano.RectilinearView.limit.traditional(
@@ -1829,7 +1831,8 @@ data.scenes.forEach(function(scene) {
     if (!l.fallbackOnly) l.tileSize = l.size;
   });
   if (maxTile >= 2048) {
-    console.log('🔎 2048tiles:', scene.id, sceneTilesBase(scene),
+    console.log('🔎 tiles:', scene.id, sceneTilesBase(scene),
+      'max=' + maxTile,
       'levels=' + scene.levels.map(function(l) { return l.size; }).join('/'));
   }
 });
