@@ -63,10 +63,14 @@ var APP_DATA = {
         {
           "tileSize": 2048,
           "size": 2048
+        },
+        {
+          "tileSize": 4096,
+          "size": 4096
         }
       ],
       "faceSize": 3750,
-      "tilesBase": "tiles2048",
+      "tilesBase": "tiles4096",
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
